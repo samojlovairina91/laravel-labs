@@ -16,12 +16,12 @@
 
     <p style="font-size: 16px; line-height: 1.6;">{{ $article->description }}</p>
 
-    {{-- Кнопка редактирования видна ТОЛЬКО модераторам --}}
+    {{-- Кнопка редактирования СТАТЬИ видна ТОЛЬКО модераторам --}}
     @if(auth()->check() && auth()->user()->isModerator())
         <div style="margin-top: 30px; padding-bottom: 20px; border-bottom: 1px solid #ddd;">
             <a href="{{ route('articles.edit', $article->id) }}"
                style="background: #2980b9; color: #fff; padding: 8px 18px; text-decoration: none; border-radius: 5px;">
-                Редактировать
+                Редактировать статью
             </a>
         </div>
     @endif
@@ -45,18 +45,21 @@
                     </div>
                     <p style="margin-top: 10px; margin-bottom: 10px;">{{ $comment->content }}</p>
                     
-                    {{-- Кнопки редактирования и удаления комментария видны ТОЛЬКО модераторам --}}
-                    @if(auth()->check() && auth()->user()->isModerator())
+                    {{-- Кнопки управления комментарием --}}
+                    {{-- @can проверяет наши шлюзы: автор или модератор --}}
+                    @can('update-comment', $comment)
                         <div style="font-size: 13px;">
                             <a href="{{ route('comments.edit', $comment->id) }}" style="color: #2980b9; margin-right: 15px;">Редактировать</a>
                             
-                            <form action="{{ route('comments.destroy', $comment->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Удалить комментарий?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" style="background: none; border: none; color: #c0392b; cursor: pointer; padding: 0; font-size: inherit; font-family: inherit;">Удалить</button>
-                            </form>
+                            @can('delete-comment', $comment)
+                                <form action="{{ route('comments.destroy', $comment->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Удалить комментарий?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" style="background: none; border: none; color: #c0392b; cursor: pointer; padding: 0; font-size: inherit; font-family: inherit;">Удалить</button>
+                                </form>
+                            @endcan
                         </div>
-                    @endif
+                    @endcan
                 </div>
             @empty
                 <p style="color: #777;">Комментариев пока нет. Будьте первым!</p>
@@ -72,7 +75,7 @@
                 
                 <div style="margin-bottom: 10px;">
                     <label>Ваше имя:</label>
-                    <input type="text" name="author" value="{{ old('author') }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                    <input type="text" name="author" value="{{ old('author', auth()->user()->name ?? '') }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
                     @error('author') <small style="color: red;">{{ $message }}</small> @enderror
                 </div>
 

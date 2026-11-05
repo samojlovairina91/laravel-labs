@@ -13,25 +13,26 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Шлюз: модератор может всё с комментариями
+        // Модератор может делать с комментариями ВСЁ
         Gate::before(function (User $user) {
             if ($user->isModerator()) {
                 return true;
             }
         });
 
-        // Читатель может создавать комментарии
+        // Читатель может оставлять комментарии
         Gate::define('create-comment', function (User $user) {
             return true;
         });
 
-        // Редактировать/удалять комментарии может только модератор
+        // Редактировать комментарий может только его автор (модератора пропустит before)
         Gate::define('update-comment', function (User $user, Comment $comment) {
-            return false;
+            return $user->id === $comment->user_id;
         });
 
+        // Удалять комментарий может только его автор (модератора пропустит before)
         Gate::define('delete-comment', function (User $user, Comment $comment) {
-            return false;
+            return $user->id === $comment->user_id;
         });
     }
 }

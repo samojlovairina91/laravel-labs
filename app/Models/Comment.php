@@ -9,16 +9,22 @@ class Comment extends Model
 {
     use HasFactory;
 
-    // Какие поля можно заполнять
     protected $fillable = [
         'article_id',
-        'author',
+        'user_id', // Теперь мы можем сохранять ID автора
+        'author',  // Оставим на случай, если пишет гость, или для старых записей
         'content',
     ];
 
-    // У одного комментария есть только одна статья
+    // Связь со статьей
     public function article()
     {
         return $this->belongsTo(Article::class);
+    }
+
+    // Связь с автором (пользователем)
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
