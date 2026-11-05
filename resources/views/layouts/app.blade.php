@@ -14,18 +14,38 @@
             background: #f4f4f4;
             color: #222;
         }
-        header {
-            background: #2c3e50;
-            padding: 15px 30px;
-        }
-        header nav a {
-            color: #fff;
-            text-decoration: none;
-            margin-right: 20px;
-            font-size: 16px;
-        }
-        header nav a:hover { text-decoration: underline; }
-        header nav a.active { font-weight: bold; text-decoration: underline; }
+       header {
+    background: #2c3e50;
+    padding: 15px 30px;
+}
+.header-container {
+    display: flex;
+    justify-content: space-between; /* Меню слева, кнопка справа */
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+header nav a {
+    color: #fff;
+    text-decoration: none;
+    margin-right: 20px;
+    font-size: 16px;
+}
+header nav a:hover { text-decoration: underline; }
+header nav a.active { font-weight: bold; text-decoration: underline; }
+.btn-register {
+    background: #e74c3c;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.2s;
+}
+.btn-register:hover {
+    background: #c0392b;
+    text-decoration: none !important;
+}
         main {
             flex: 1;
             padding: 30px;
@@ -48,14 +68,29 @@
 </head>
 <body>
     <header>
+    <div class="header-container">
         <nav>
-            <a href="{{ route('home') }}"            class="{{ request()->routeIs('home') ? 'active' : '' }}">Главная</a>
-            <a href="{{ route('about') }}"           class="{{ request()->routeIs('about') ? 'active' : '' }}">О нас</a>
-            <a href="{{ route('contacts') }}"        class="{{ request()->routeIs('contacts') ? 'active' : '' }}">Контакты</a>
-            <a href="{{ route('galery') }}"          class="{{ request()->routeIs('galery') ? 'active' : '' }}">Галерея</a>
-            <a href="{{ route('signin') }}"          class="{{ request()->routeIs('signin') ? 'active' : '' }}">Регистрация</a>
-            <a href="{{ route('articles.index') }}"  class="{{ request()->routeIs('articles.*') ? 'active' : '' }}">Новости (БД)</a>
+            <a href="{{ route('home') }}">Главная</a>
+            <a href="{{ route('about') }}">О нас</a>
+            <a href="{{ route('contacts') }}">Контакты</a>
+            <a href="{{ route('galery') }}">Галерея</a>
+            <a href="{{ route('articles.index') }}">Новости</a>
         </nav>
+        
+        <div>
+            @auth
+                <span style="color: #fff; margin-right: 15px;">Привет, {{ Auth::user()->name }}!</span>
+                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="btn-register" style="border: none; cursor: pointer; font-family: inherit;">Выйти</button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" style="color: #fff; text-decoration: none; margin-right: 15px;">Вход</a>
+                <a href="{{ route('register') }}" class="btn-register">Регистрация</a>
+            @endauth
+        </div>
+    </div>
+</header>
     </header>
 
     <main>
