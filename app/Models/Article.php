@@ -4,24 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use App\Policies\ArticlePolicy;
 
+#[UsePolicy(ArticlePolicy::class)] // Привязываем политику прямо к модели
 class Article extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'title',
-        'slug',
-        'short_description',
-        'description',
-        'preview_image',
-        'full_image',
-        'published_at',
+        'title', 'slug', 'short_description', 'description',
+        'preview_image', 'full_image', 'published_at',
     ];
 
     protected $casts = [
         'published_at' => 'date',
     ];
+
     public function comments()
     {
         return $this->hasMany(Comment::class);

@@ -70,12 +70,16 @@ header nav a.active { font-weight: bold; text-decoration: underline; }
     <header>
     <div class="header-container">
         <nav>
-            <a href="{{ route('home') }}">Главная</a>
-            <a href="{{ route('about') }}">О нас</a>
-            <a href="{{ route('contacts') }}">Контакты</a>
-            <a href="{{ route('galery') }}">Галерея</a>
-            <a href="{{ route('articles.index') }}">Новости</a>
-        </nav>
+                <a href="{{ route('home') }}"            class="{{ request()->routeIs('home') ? 'active' : '' }}">Главная</a>
+                <a href="{{ route('about') }}"           class="{{ request()->routeIs('about') ? 'active' : '' }}">О нас</a>
+                <a href="{{ route('contacts') }}"        class="{{ request()->routeIs('contacts') ? 'active' : '' }}">Контакты</a>
+                <a href="{{ route('galery') }}"          class="{{ request()->routeIs('galery') ? 'active' : '' }}">Галерея</a>
+                
+                {{-- Ссылка на новости видна только авторизованным --}}
+                @auth
+                    <a href="{{ route('articles.index') }}"  class="{{ request()->routeIs('articles.*') ? 'active' : '' }}">Новости</a>
+                @endauth
+            </nav>
         
         <div>
             @auth

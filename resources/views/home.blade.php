@@ -3,7 +3,7 @@
 @section('title', 'Главная')
 
 @section('content')
-    <h1>Новости</h1>
+    
 
     @if (count($articles) > 0)
         <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse; background: #fff;">

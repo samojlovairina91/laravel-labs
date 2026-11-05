@@ -5,10 +5,14 @@
 @section('content')
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h1>Новости (из базы данных)</h1>
-        <a href="{{ route('articles.create') }}"
-           style="background: #27ae60; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-            + Добавить новость
-        </a>
+        
+        {{-- Кнопка добавления видна только модераторам --}}
+        @if(auth()->check() && auth()->user()->isModerator())
+            <a href="{{ route('articles.create') }}"
+               style="background: #27ae60; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                + Добавить новость
+            </a>
+        @endif
     </div>
 
     @if (session('success'))
@@ -26,7 +30,11 @@
                     <th>Превью</th>
                     <th>Заголовок</th>
                     <th>Краткое описание</th>
-                    <th>Действия</th>
+                    
+                    {{-- Показываем колонку Действия ТОЛЬКО модераторам --}}
+                    @if(auth()->check() && auth()->user()->isModerator())
+                        <th>Действия</th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -47,24 +55,28 @@
                             </a>
                         </td>
                         <td style="font-size: 14px; color: #555;">{{ Str::limit($article->short_description, 80) }}</td>
-                        <td style="white-space: nowrap;">
-                            <a href="{{ route('articles.edit', $article->id) }}"
-                               style="color: #2980b9; text-decoration: none; font-weight: bold; margin-right: 15px;">
-                                ✎ Ред.
-                            </a>
+                        
+                        {{-- Показываем кнопки ТОЛЬКО модераторам --}}
+                        @if(auth()->check() && auth()->user()->isModerator())
+                            <td style="white-space: nowrap;">
+                                <a href="{{ route('articles.edit', $article->id) }}"
+                                   style="color: #2980b9; text-decoration: none; font-weight: bold; margin-right: 15px;">
+                                    ✎ Ред.
+                                </a>
 
-                            <form action="{{ route('articles.destroy', $article->id) }}"
-                                  method="POST"
-                                  style="display: inline;"
-                                  onsubmit="return confirm('Точно удалить новость?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"
-                                        style="background: none; border: none; color: #c0392b; cursor: pointer; padding: 0; font-weight: bold; font-family: inherit; font-size: inherit;">
-                                    🗑 Удалить
-                                </button>
-                            </form>
-                        </td>
+                                <form action="{{ route('articles.destroy', $article->id) }}"
+                                      method="POST"
+                                      style="display: inline;"
+                                      onsubmit="return confirm('Точно удалить новость?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                            style="background: none; border: none; color: #c0392b; cursor: pointer; padding: 0; font-weight: bold; font-family: inherit; font-size: inherit;">
+                                        🗑 Удалить
+                                    </button>
+                                </form>
+                            </td>
+                        @endif
                     </tr>
                 @endforeach
             </tbody>
@@ -99,7 +111,9 @@
     @else
         <div style="background: #fff; padding: 20px; text-align: center; border-radius: 8px;">
             <p style="font-size: 18px; color: #666;">Новостей пока нет.</p>
-            <a href="{{ route('articles.create') }}" style="color: #27ae60; font-weight: bold;">Создать первую новость</a>
+            @if(auth()->check() && auth()->user()->isModerator())
+                <a href="{{ route('articles.create') }}" style="color: #27ae60; font-weight: bold;">Создать первую новость</a>
+            @endif
         </div>
     @endif
 @endsection

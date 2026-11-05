@@ -9,19 +9,17 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // 1. Показ формы регистрации
     public function showRegister()
     {
         return view('auth.register');
     }
 
-    // 2. Сохранение нового пользователя
     public function register(Request $request)
     {
         $validated = $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed', 
+            'password' => 'required|string|min:6|confirmed',
         ]);
 
         User::create([
@@ -30,17 +28,14 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        // Redirect на форму авторизации
         return redirect()->route('login')->with('success', 'Регистрация прошла успешно! Теперь войдите.');
     }
 
-    // 3. Показ формы входа
     public function showLogin()
     {
         return view('auth.login');
     }
 
-    // 4. Аутентификация (вход)
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -50,12 +45,6 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-
-            // Генерируем токен Sanctum
-            $token = $request->user()->createToken('auth_token')->plainTextToken;
-            session(['api_token' => $token]); // сохраняем в сессию, если понадобится
-
-            // Redirect на главную в обход auth
             return redirect()->route('home')->with('success', 'Вы вошли в систему!');
         }
 
@@ -64,18 +53,10 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
-    // 5. Выход
     public function logout(Request $request)
     {
-        // Удаляем токен
-        if ($request->user()) {
-            $request->user()->currentAccessToken()->delete();
-        }
+        Auth::guard('web')->logout();
 
-        // Выходим
-        Auth::logout();
-
-        // Аннулируем сессию и обновляем CSRF
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

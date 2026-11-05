@@ -6,7 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CommentController;
 
-// --- ДОСТУПНО ВСЕМ ---
+// --- ДОСТУПНО ВСЕМ (Главная, О нас, Контакты, Галерея, Вход/Регистрация) ---
 Route::get('/', [MainController::class, 'index'])->name('home');
 Route::get('/about', function () { return view('about'); })->name('about');
 Route::get('/contacts', function () {
@@ -19,7 +19,6 @@ Route::get('/contacts', function () {
 })->name('contacts');
 Route::get('/galery', [MainController::class, 'galery'])->name('galery');
 
-// --- ДЛЯ ГОСТЕЙ (вход/регистрация) ---
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
@@ -27,10 +26,13 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 });
 
-// --- ЗАЩИЩЕННЫЕ (только для авторизованных) ---
+// --- ЗАЩИЩЕНО (Только для авторизованных: Новости и Комментарии) ---
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
+    // Новости (посредник auth:sanctum пускает только вошедших)
     Route::resource('articles', ArticleController::class);
+    
+    // Комментарии
     Route::resource('comments', CommentController::class);
 });
