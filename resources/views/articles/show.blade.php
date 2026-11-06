@@ -5,6 +5,13 @@
 @section('content')
     <a href="{{ route('articles.index') }}" style="color: #2980b9;">← К списку</a>
 
+    {{-- Вывод сообщения об успехе (например, что комментарий отправлен на модерацию) --}}
+    @if (session('success'))
+        <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 15px; margin-top: 15px;">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <h1 style="margin-top: 15px;">{{ $article->title }}</h1>
     <p style="color: #777;">Опубликовано: {{ $article->published_at->format('d.m.Y') }}</p>
 
@@ -28,16 +35,11 @@
 
     {{-- Блок комментариев --}}
     <div style="margin-top: 40px;">
-        <h2>Комментарии ({{ $article->comments->count() }})</h2>
-
-        @if (session('success'))
-            <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-                {{ session('success') }}
-            </div>
-        @endif
+        <h2>Комментарии ({{ $article->comments->where('is_approved', true)->count() }})</h2>
 
         <div style="margin-bottom: 30px;">
-            @forelse ($article->comments as $comment)
+            {{-- Выводим ТОЛЬКО одобренные комментарии --}}
+            @forelse ($article->comments->where('is_approved', true) as $comment)
                 <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #2c3e50;">
                     <div style="display: flex; justify-content: space-between;">
                         <strong style="color: #2c3e50;">{{ $comment->author }}</strong>
@@ -45,8 +47,7 @@
                     </div>
                     <p style="margin-top: 10px; margin-bottom: 10px;">{{ $comment->content }}</p>
                     
-                    {{-- Кнопки управления комментарием --}}
-                    {{-- @can проверяет наши шлюзы: автор или модератор --}}
+                    {{-- Кнопки управления комментарием (доступны автору или модератору) --}}
                     @can('update-comment', $comment)
                         <div style="font-size: 13px;">
                             <a href="{{ route('comments.edit', $comment->id) }}" style="color: #2980b9; margin-right: 15px;">Редактировать</a>

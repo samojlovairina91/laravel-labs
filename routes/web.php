@@ -6,7 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CommentController;
 
-// --- ДОСТУПНО ВСЕМ (Главная, О нас, Контакты, Галерея, Вход/Регистрация) ---
+// --- ДОСТУПНО ВСЕМ ---
 Route::get('/', [MainController::class, 'index'])->name('home');
 Route::get('/about', function () { return view('about'); })->name('about');
 Route::get('/contacts', function () {
@@ -26,13 +26,16 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 });
 
-// --- ЗАЩИЩЕНО (Только для авторизованных: Новости и Комментарии) ---
+// --- ЗАЩИЩЕНО (Только для авторизованных) ---
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
-    // Новости (посредник auth:sanctum пускает только вошедших)
+    // 1. Сначала ставим кастомные маршруты модерации!
+    Route::get('/comments/moderation', [CommentController::class, 'moderation'])->name('comments.moderation');
+    Route::post('/comments/{comment}/approve', [CommentController::class, 'approve'])->name('comments.approve');
+    Route::post('/comments/{comment}/reject', [CommentController::class, 'reject'])->name('comments.reject');
+
+    // 2. А теперь ресурсные маршруты
     Route::resource('articles', ArticleController::class);
-    
-    // Комментарии
     Route::resource('comments', CommentController::class);
 });

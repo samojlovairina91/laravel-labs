@@ -73,9 +73,14 @@
                 <a href="{{ route('contacts') }}"        class="{{ request()->routeIs('contacts') ? 'active' : '' }}">Контакты</a>
                 <a href="{{ route('galery') }}"          class="{{ request()->routeIs('galery') ? 'active' : '' }}">Галерея</a>
                 
-                {{-- Ссылка на новости видна только авторизованным --}}
                 @auth
-                    <a href="{{ route('articles.index') }}"  class="{{ request()->routeIs('articles.*') ? 'active' : '' }}">Новости</a>
+                    {{-- Ссылка на новости видна авторизованным --}}
+                    <a href="{{ route('articles.index') }}" class="{{ request()->routeIs('articles.*') ? 'active' : '' }}">Новости</a>
+                    
+                    {{-- Ссылка на модерацию видна только модераторам --}}
+                    @if(auth()->user()->isModerator())
+                        <a href="{{ route('comments.moderation') }}" class="{{ request()->routeIs('comments.moderation') ? 'active' : '' }}">Модерация</a>
+                    @endif
                 @endauth
             </nav>
             

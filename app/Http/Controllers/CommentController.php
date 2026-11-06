@@ -11,7 +11,6 @@ class CommentController extends Controller
 {
     public function store(Request $request)
     {
-        // Проверка шлюза на создание
         Gate::authorize('create-comment');
 
         $validated = $request->validate([
@@ -20,21 +19,57 @@ class CommentController extends Controller
             'content'    => 'required|string|min:5',
         ]);
 
-        // Привязываем комментарий к текущему авторизованному пользователю
         $validated['user_id'] = auth()->id();
+        $validated['is_approved'] = false; // Комментарий ждет проверки
 
         Comment::create($validated);
 
         return redirect()
             ->route('articles.show', $validated['article_id'])
-            ->with('success', 'Комментарий добавлен!');
+            ->with('success', 'Комментарий отправлен на модерацию! Он появится на сайте после проверки.');
+    }
+
+    // Список комментариев на модерации
+    public function moderation()
+    {
+        // Доступ только у модератора (проверяем через роль)
+        if (!auth()->user()->isModerator()) {
+            abort(403, 'Доступ только для модераторов');
+        }
+
+        // Берем только те, что НЕ одобрены
+        $comments = Comment::where('is_approved', false)->with('article', 'user')->latest()->get();
+
+        return view('comments.moderation', compact('comments'));
+    }
+
+    // Одобрить комментарий
+    public function approve(Comment $comment)
+    {
+        if (!auth()->user()->isModerator()) {
+            abort(403);
+        }
+        
+        $comment->update(['is_approved' => true]);
+
+        return redirect()->route('comments.moderation')->with('success', 'Комментарий одобрен!');
+    }
+
+    // Отклонить (удалить) комментарий
+    public function reject(Comment $comment)
+    {
+        if (!auth()->user()->isModerator()) {
+            abort(403);
+        }
+        
+        $comment->delete();
+
+        return redirect()->route('comments.moderation')->with('success', 'Комментарий отклонен и удален!');
     }
 
     public function edit(Comment $comment)
     {
-        // Проверка шлюза на редактирование
         Gate::authorize('update-comment', $comment);
-
         return view('comments.edit', compact('comment'));
     }
 
